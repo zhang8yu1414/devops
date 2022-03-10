@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 
-	"github.com/gogf/gf-demo-user/v2/internal/consts"
-	"github.com/gogf/gf-demo-user/v2/internal/model/entity"
+	"zhangyudevops.com/internal/consts"
+	"zhangyudevops.com/internal/model/entity"
 )
 
 type (

@@ -3,12 +3,12 @@ package service
 import (
 	"context"
 
-	"github.com/gogf/gf-demo-user/v2/internal/model"
-	"github.com/gogf/gf-demo-user/v2/internal/model/entity"
-	"github.com/gogf/gf-demo-user/v2/internal/service/internal/dao"
-	"github.com/gogf/gf-demo-user/v2/internal/service/internal/do"
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"zhangyudevops.com/internal/model"
+	"zhangyudevops.com/internal/model/entity"
+	"zhangyudevops.com/internal/service/internal/dao"
+	"zhangyudevops.com/internal/service/internal/do"
 )
 
 type (
