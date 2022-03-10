@@ -7,3 +7,4 @@ CREATE TABLE `user` (
   `update_at` datetime DEFAULT NULL COMMENT 'Updated Time',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+

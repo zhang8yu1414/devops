@@ -1,0 +1,29 @@
+# HTTP Server.
+server:
+  address: ":9527"
+  dumpRouterMap: true
+  routeOverWrite: true
+  accessLogEnabled: true
+  openapiPath: "/api.json"
+  swaggerPath: "/swagger"
+
+# Global logging.
+logger:
+    level: "all"
+    stdout: true
+
+# Database.
+database:
+  logger:
+    level: "all"
+    stdout: true
+
+  default:
+    link: "mysql:root:nBqYwcAq^MJCx^KJ@tcp(1.14.22.216:3306)/pornhub"
+    debug: true
+
+# gfcli tools
+gfcli:
+  gen:
+    dao:
+    - link: "mysql:root:nBqYwcAq^MJCx^KJ@tcp(1.14.22.216:3306)/pornhub"

@@ -18,3 +18,4 @@ cbuild
 main
 .vscode
 temp/
+test/
