@@ -1,8 +1,8 @@
 package model
 
 type UserCreateInput struct {
-	Passport string `v:"required"`
-	Password string `v:"required"`
+	Passport string
+	Password string
 	Nickname string
 }
 
