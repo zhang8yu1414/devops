@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"github.com/gogf/gf/v2/frame/g"
 
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -35,6 +36,10 @@ func (s *sUser) Create(ctx context.Context, in model.UserCreateInput) (err error
 	var (
 		available bool
 	)
+	// validate commit data
+	if s.CreateRuleRequired(ctx, in) == false {
+		return gerror.New("请完整输入用户名和密码")
+	}
 	// Passport checks.
 	available, err = s.IsPassportAvailable(ctx, in.Passport)
 	if err != nil {
@@ -59,6 +64,14 @@ func (s *sUser) Create(ctx context.Context, in model.UserCreateInput) (err error
 		}).Insert()
 		return err
 	})
+}
+
+// CreateRuleRequired validate post user info
+func (s *sUser) CreateRuleRequired(ctx context.Context, in model.UserCreateInput) bool {
+	if err := g.Validator().Data(in).Run(ctx); err != nil {
+		return false
+	}
+	return true
 }
 
 // IsSignedIn checks and returns whether current user is already signed-in.

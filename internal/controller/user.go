@@ -21,6 +21,7 @@ func (c *cUser) SignUp(ctx context.Context, req *v1.UserSignUpReq) (res *v1.User
 	})
 	return
 }
+
 func (c *cUser) SignIn(ctx context.Context, req *v1.UserSignInReq) (res *v1.UserSignInRes, err error) {
 	err = service.User().SignIn(ctx, model.UserSignInInput{
 		Passport: req.Passport,
