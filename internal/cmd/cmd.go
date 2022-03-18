@@ -29,6 +29,8 @@ var (
 				// Register route handlers.
 				group.Bind(
 					controller.User,
+					controller.Docker,
+					controller.File,
 				)
 				// Special handler that needs authentication.
 				group.Group("/", func(group *ghttp.RouterGroup) {
