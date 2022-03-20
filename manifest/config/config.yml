@@ -6,6 +6,7 @@ server:
   accessLogEnabled: true
   openapiPath: "/api.json"
   swaggerPath: "/swagger"
+  ClientMaxBodySize: "1000MB"
 
 # Global logging.
 logger:
@@ -30,3 +31,9 @@ gfcli:
 
 docker:
   filePath: "files"
+
+harbor:
+  ip: "172.27.15.154"
+  username: "admin"
+  password: "Harbor12345"
+
