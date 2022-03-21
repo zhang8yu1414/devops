@@ -42,7 +42,20 @@ func (s *sFile) UploadFile(ctx context.Context, inFile *ghttp.UploadFile) (err e
 		return err
 	}
 	file.Md5 = md5
-	_, err = g.Model("file").Where("name=", filename).Delete()
+	err = g.DB().Transaction(ctx, func(ctx context.Context, tx *gdb.TX) error {
+		id, _ := tx.Ctx(ctx).Model("file").Fields("id").Where("name=", filename).Value()
+		_, err = tx.Ctx(ctx).Model("image").Where("file_id", id).Delete()
+		if err != nil {
+			return err
+		}
+
+		_, err = tx.Ctx(ctx).Model("file").Where("name=", filename).Delete()
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 	if err != nil {
 		return err
 	}

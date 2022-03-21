@@ -5,7 +5,7 @@ import (
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
 	v1 "zhangyudevops.com/api/v1"
-	"zhangyudevops.com/internal/model/service"
+	"zhangyudevops.com/internal/service"
 )
 
 var File = cFile{}

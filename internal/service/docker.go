@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
@@ -42,13 +44,10 @@ func GenerateDockerClient() *client.Client {
 	return dockerClient
 }
 
-// LoginHarbor 登录harbor仓库
-func LoginHarbor() error {
+// GenerateHarborAuthConfig 生成harbor登录密匙
+func GenerateHarborAuthConfig(ctx context.Context) types.ImagePushOptions {
 	var (
-		once         sync.Once
-		ctx          context.Context
-		harborConfig *types.AuthConfig
-		status       string
+		harborConfig types.AuthConfig
 	)
 	// 获取harbor配置
 	addressVar, _ := g.Cfg().Get(ctx, "harbor.ip")
@@ -58,17 +57,10 @@ func LoginHarbor() error {
 	harborConfig.Password = passwordVar.String()
 	harborConfig.ServerAddress = addressVar.String()
 
-	// 登录仓库
-	// TODO: 这里需要确认 status 返回的值是什么
-	once.Do(func() {
-		res, err := GenerateDockerClient().RegistryLogin(ctx, *harborConfig)
-		if err != nil {
-			glog.Error(ctx, err)
-		}
-		status = res.Status
-		g.Dump("status", status)
-	})
-	return nil
+	authConfigBytes, _ := json.Marshal(harborConfig)
+	authConfigEncoded := base64.URLEncoding.EncodeToString(authConfigBytes)
+	opts := types.ImagePushOptions{RegistryAuth: authConfigEncoded}
+	return opts
 }
 
 // LoadImageAndPushToHarbor 导入docker镜像并推送到harbor仓库
@@ -124,7 +116,9 @@ func (s *sDocker) LoadImageAndPushToHarbor(ctx context.Context) (err error) {
 			}
 
 			// 推送harbor仓库
-			_, err = GenerateDockerClient().ImagePush(ctx, newImage, types.ImagePushOptions{})
+			opts := GenerateHarborAuthConfig(ctx)
+			_, err = GenerateDockerClient().ImagePush(ctx, newImage, opts)
+			glog.Infof(ctx, "%s , image push success", newImage)
 			if err != nil {
 				return err
 			}

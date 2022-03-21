@@ -33,7 +33,7 @@ docker:
   filePath: "files"
 
 harbor:
-  ip: "172.27.15.154"
+  ip: "172.27.15.153"
   username: "admin"
   password: "Harbor12345"
 
