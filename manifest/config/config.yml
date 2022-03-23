@@ -29,7 +29,7 @@ gfcli:
     dao:
     - link: "mysql:root:nBqYwcAq^MJCx^KJ@tcp(1.14.22.216:3306)/pornhub"
 
-docker:
+file:
   filePath: "files"
 
 harbor:
