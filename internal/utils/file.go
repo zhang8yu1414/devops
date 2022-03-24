@@ -6,8 +6,13 @@ import (
 	"regexp"
 )
 
-// GetDirectoryDockerFileList 查看指定目录下的文件，返回绝对路径列表
+// GetDirectoryDockerFileList 查看docker目录下的文件，返回绝对路径列表
 func GetDirectoryDockerFileList(path string) []string {
+	files, _ := filepath.Glob(fmt.Sprintf("%s/*.tar", path))
+	return files
+}
+
+func GetDirectoryUpdateFileList(path string) []string {
 	files, _ := filepath.Glob(fmt.Sprintf("%s/*.tar", path))
 	return files
 }

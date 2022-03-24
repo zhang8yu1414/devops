@@ -1,0 +1,5 @@
+[abc]
+127.0.0.1   ansible_sudo_pass="zhangyu766"
+
+[efg]
+172.27.15.33

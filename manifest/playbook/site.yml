@@ -1,0 +1,11 @@
+---
+- hosts: abc
+  tasks:
+    - name: commands
+      shell: |
+        hostname && whoami
+      register: output
+
+    - name: output command
+      debug:
+        var: output.stdout_lines
