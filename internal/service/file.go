@@ -6,9 +6,9 @@ import (
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
-	"github.com/gogf/gf/v2/os/glog"
 	"os"
 	"path"
+	"strings"
 	"zhangyudevops.com/internal/model/model/entity"
 	"zhangyudevops.com/internal/utils"
 )
@@ -27,28 +27,44 @@ func (s *sFile) UploadFile(ctx context.Context, inFile *ghttp.UploadFile) (err e
 	filePath := ""
 
 	// 查找配置文件所配置的文件上传路径
-	configFilePath, err := g.Config().Get(ctx, "file.filePath")
+	configFilePath, _ := g.Config().Get(ctx, "file.filePath")
 	dirPath := configFilePath.String()
 
 	// 判断上传文件是什么格式，放在不同的目录下
 	inFileName := inFile.Filename
 	if suffix := path.Ext(inFileName); suffix == ".gz" || suffix == ".tgz" || suffix == ".xz" {
-		glog.Debugf(ctx, "%s为应用升级压缩包或者全量压缩包，放在app目录", inFileName)
-		filePath = fmt.Sprintf("%s/%s", dirPath, "app")
-		err = os.MkdirAll(filePath, os.ModePerm)
-		if err != nil {
-			return err
+		if prefix := strings.HasPrefix(inFileName, "update"); prefix {
+			g.Log().Debugf(ctx, "%s为应用升级压缩包，放在app/update目录", inFileName)
+			filePath = fmt.Sprintf("%s/%s", dirPath, "app/update")
+			err = os.MkdirAll(filePath, os.ModePerm)
+			if err != nil {
+				return err
+			}
+		} else if prefix = strings.HasPrefix(inFileName, "full"); prefix {
+			g.Log().Debugf(ctx, "%s为应用全量安装压缩包，放在app/full目录", inFileName)
+			filePath = fmt.Sprintf("%s/%s", dirPath, "app/full")
+			err = os.MkdirAll(filePath, os.ModePerm)
+			if err != nil {
+				return err
+			}
+		} else {
+			g.Log().Debugf(ctx, "%s为不知名压缩包，放在app/trash目录", inFileName)
+			filePath = fmt.Sprintf("%s/%s", dirPath, "app/trash")
+			err = os.MkdirAll(filePath, os.ModePerm)
+			if err != nil {
+				return err
+			}
 		}
 	} else if suffix = path.Ext(inFileName); suffix == ".tar" {
 		// .tar文件包包放在docker目录下
-		glog.Debugf(ctx, "%s为docker image包，放在docker目录下", inFileName)
+		g.Log().Debugf(ctx, "%s为docker image包，放在docker目录下", inFileName)
 		filePath = fmt.Sprintf("%s/%s", dirPath, "docker")
 		err = os.MkdirAll(filePath, os.ModePerm)
 		if err != nil {
 			return err
 		}
 	} else {
-		glog.Debugf(ctx, "%s为垃圾收集站，放在trash目录下", inFileName)
+		g.Log().Debugf(ctx, "%s为垃圾收集站，放在trash目录下", inFileName)
 		filePath = fmt.Sprintf("%s/%s", dirPath, "trash")
 		err = os.MkdirAll(filePath, os.ModePerm)
 		if err != nil {

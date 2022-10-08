@@ -7,17 +7,32 @@ server:
   openapiPath: "/api.json"
   swaggerPath: "/swagger"
   ClientMaxBodySize: "1000MB"
+  errorLogEnabled: true
 
 # Global logging.
 logger:
-    level: "all"
-    stdout: true
+  path: "/opt/user/logs"
+  file: "app-{Y-m-d}.log"
+  level: "all"
+  stdout: true
+  rotateSize: "100M"
+  rotateBackupLimit: 5
+  rotateBackupExpire: "5d"
+  rotateBackupCompress: 9
+  rotateCheckInterval: "24h"
 
 # Database.
 database:
   logger:
+    path: "/opt/user/logs"
+    file: "sql-{Y-m-d}.log"
     level: "all"
     stdout: true
+    rotateSize: "100M"
+    rotateBackupLimit: 5
+    rotateBackupExpire: "5d"
+    rotateBackupCompress: 9
+    rotateCheckInterval: "24h"
 
   default:
     link: "mysql:root:nBqYwcAq^MJCx^KJ@tcp(1.14.22.216:3306)/pornhub"
@@ -30,10 +45,13 @@ gfcli:
     - link: "mysql:root:nBqYwcAq^MJCx^KJ@tcp(1.14.22.216:3306)/pornhub"
 
 file:
-  filePath: "files"
+  filePath: "/opt/user/files"
 
 harbor:
-  ip: "172.27.15.153"
+  ip: "172.27.15.122"
   username: "admin"
   password: "Harbor12345"
+
+kube:
+  configPath: "/opt/user/conf"
 

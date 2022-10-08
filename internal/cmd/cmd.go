@@ -31,6 +31,8 @@ var (
 					controller.User,
 					controller.Docker,
 					controller.File,
+					controller.Kube,
+					controller.Ws,
 				)
 				// Special handler that needs authentication.
 				group.Group("/", func(group *ghttp.RouterGroup) {

@@ -15,6 +15,7 @@ func Ansible() *sAnsible {
 	return &insAnsible
 }
 
+// ExecutePlaybook 执行ansible playbook
 func (s *sAnsible) ExecutePlaybook(path string) {
 	ansiblePlaybookConnectOptions := &options.AnsibleConnectionOptions{
 		Connection: "local",

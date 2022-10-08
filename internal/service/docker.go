@@ -11,7 +11,7 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/glog"
 	"github.com/gogf/gf/v2/util/gconv"
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -21,7 +21,10 @@ import (
 
 type sDocker struct{}
 
-var insDocker = sDocker{}
+var (
+	insDocker    = sDocker{}
+	DockerClient = GenerateDockerClient()
+)
 
 func Docker() *sDocker {
 	return &insDocker
@@ -65,7 +68,7 @@ func GenerateHarborAuthConfig(ctx context.Context) types.ImagePushOptions {
 
 // LoadImageAndPushToHarbor 导入docker镜像并推送到harbor仓库
 func (s *sDocker) LoadImageAndPushToHarbor(ctx context.Context) (err error) {
-	path, err := g.Config().Get(ctx, "docker.filePath")
+	path, err := g.Config().Get(ctx, "file.filePath")
 	if err != nil {
 		return err
 	}
@@ -88,11 +91,11 @@ func (s *sDocker) LoadImageAndPushToHarbor(ctx context.Context) (err error) {
 				return err
 			}
 
-			res, err := GenerateDockerClient().ImageLoad(ctx, f, true)
+			res, err := DockerClient.ImageLoad(ctx, f, true)
 			if err != nil {
 				return err
 			}
-			body, err := ioutil.ReadAll(res.Body)
+			body, err := io.ReadAll(res.Body)
 			strBody := gconv.String(body)
 			image := strings.Split(strBody, " ")[2]
 			oldImage := strings.Split(image, "\\")[0]
@@ -110,15 +113,15 @@ func (s *sDocker) LoadImageAndPushToHarbor(ctx context.Context) (err error) {
 			}
 
 			// 生成新的tag image
-			err = GenerateDockerClient().ImageTag(ctx, oldImage, newImage)
+			err = DockerClient.ImageTag(ctx, oldImage, newImage)
 			if err != nil {
 				return err
 			}
 
 			// 推送harbor仓库
 			opts := GenerateHarborAuthConfig(ctx)
-			_, err = GenerateDockerClient().ImagePush(ctx, newImage, opts)
-			glog.Infof(ctx, "%s , image push success", newImage)
+			_, err = DockerClient.ImagePush(ctx, newImage, opts)
+			g.Log().Infof(ctx, "%s , image push success", newImage)
 			if err != nil {
 				return err
 			}
