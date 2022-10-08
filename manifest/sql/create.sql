@@ -6,7 +6,7 @@ CREATE TABLE `user` (
   `create_at` datetime DEFAULT NULL COMMENT 'Created Time',
   `update_at` datetime DEFAULT NULL COMMENT 'Updated Time',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `file` (
   `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'FILE ID',
@@ -17,7 +17,7 @@ CREATE TABLE `file` (
   `path` varchar(50) NOT NULL COMMENT '文件存储目录',
   `import` tinyint NOT NULL DEFAULT 0 COMMENT '文件是否被处理,默认未处理',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `image` (
     `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'image auto increment ID',
@@ -26,4 +26,4 @@ CREATE TABLE `image` (
     `old` varchar(50) NOT NULL COMMENT '上传的镜像名称',
     `file_id` int NOT NULL COMMENT '对应文件自增ID',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

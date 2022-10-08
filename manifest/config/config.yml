@@ -6,12 +6,12 @@ server:
   accessLogEnabled: true
   openapiPath: "/api.json"
   swaggerPath: "/swagger"
-  ClientMaxBodySize: "1000MB"
+  ClientMaxBodySize: "10000MB"
   errorLogEnabled: true
 
 # Global logging.
 logger:
-  path: "/opt/user/logs"
+  path: "D:\\run\\logs"
   file: "app-{Y-m-d}.log"
   level: "all"
   stdout: true
@@ -24,7 +24,7 @@ logger:
 # Database.
 database:
   logger:
-    path: "/opt/user/logs"
+    path: "D:\\run\\logs"
     file: "sql-{Y-m-d}.log"
     level: "all"
     stdout: true
@@ -35,17 +35,17 @@ database:
     rotateCheckInterval: "24h"
 
   default:
-    link: "mysql:root:nBqYwcAq^MJCx^KJ@tcp(1.14.22.216:3306)/pornhub"
+    link: "mysql:root:nBqYwcAq^MJCx^KJ@tcp(127.0.0.1:3306)/sakura"
     debug: true
 
 # gfcli tools
 gfcli:
   gen:
     dao:
-    - link: "mysql:root:nBqYwcAq^MJCx^KJ@tcp(1.14.22.216:3306)/pornhub"
+    - link: "mysql:root:nBqYwcAq^MJCx^KJ@tcp(127.0.0.1:3306)/sakura"
 
 file:
-  filePath: "/opt/user/files"
+  filePath: "D:\\run\\files"
 
 harbor:
   ip: "172.27.15.122"
@@ -53,5 +53,8 @@ harbor:
   password: "Harbor12345"
 
 kube:
-  configPath: "/opt/user/conf"
+  configPath: "D:\\run\\conf"
+
+update:
+  uncompressedPath: "D:\\run\\update"
 

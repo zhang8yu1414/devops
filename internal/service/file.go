@@ -22,6 +22,7 @@ func File() *sFile {
 }
 
 func (s *sFile) UploadFile(ctx context.Context, inFile *ghttp.UploadFile) (err error) {
+	//@todo: 这里要补充，如果出现每次上传文件名都一致的情况，初步解决方案为先查库（in）如果一致则不上传，不一致则上传
 	var file = &entity.File{}
 	file.Size = inFile.Size
 	filePath := ""
@@ -33,16 +34,16 @@ func (s *sFile) UploadFile(ctx context.Context, inFile *ghttp.UploadFile) (err e
 	// 判断上传文件是什么格式，放在不同的目录下
 	inFileName := inFile.Filename
 	if suffix := path.Ext(inFileName); suffix == ".gz" || suffix == ".tgz" || suffix == ".xz" {
-		if prefix := strings.HasPrefix(inFileName, "update"); prefix {
-			g.Log().Debugf(ctx, "%s为应用升级压缩包，放在app/update目录", inFileName)
-			filePath = fmt.Sprintf("%s/%s", dirPath, "app/update")
+		if prefix := strings.HasPrefix(inFileName, "center"); prefix {
+			g.Log().Debugf(ctx, "%s为总行应用升级压缩包，放在app/center目录", inFileName)
+			filePath = fmt.Sprintf("%s/%s", dirPath, "app/center")
 			err = os.MkdirAll(filePath, os.ModePerm)
 			if err != nil {
 				return err
 			}
-		} else if prefix = strings.HasPrefix(inFileName, "full"); prefix {
-			g.Log().Debugf(ctx, "%s为应用全量安装压缩包，放在app/full目录", inFileName)
-			filePath = fmt.Sprintf("%s/%s", dirPath, "app/full")
+		} else if prefix = strings.HasPrefix(inFileName, "division"); prefix {
+			g.Log().Debugf(ctx, "%s为分行应用全量安装压缩包，放在app/division目录", inFileName)
+			filePath = fmt.Sprintf("%s/%s", dirPath, "app/division")
 			err = os.MkdirAll(filePath, os.ModePerm)
 			if err != nil {
 				return err
@@ -114,4 +115,14 @@ func (s *sFile) UploadFile(ctx context.Context, inFile *ghttp.UploadFile) (err e
 	}
 
 	return nil
+}
+
+// UncompressedFile 解压.tar.gz包
+// return: 解压后的路径
+func (s *sFile) UncompressedFile(ctx context.Context, tarFile string) (outPath string) {
+	destPathVar, _ := g.Config().Get(ctx, "update.uncompressedPath")
+	destPath := destPathVar.String()
+
+	_, outPath = utils.ExtraTarGzip(tarFile, destPath)
+	return outPath
 }

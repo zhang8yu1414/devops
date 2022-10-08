@@ -68,6 +68,7 @@ func GenerateHarborAuthConfig(ctx context.Context) types.ImagePushOptions {
 
 // LoadImageAndPushToHarbor 导入docker镜像并推送到harbor仓库
 func (s *sDocker) LoadImageAndPushToHarbor(ctx context.Context) (err error) {
+	// @todo: 这里要更改逻辑，需要导镜像的目录不能写死，需为升级包里面镜像存储目录
 	path, err := g.Config().Get(ctx, "file.filePath")
 	if err != nil {
 		return err
@@ -120,11 +121,8 @@ func (s *sDocker) LoadImageAndPushToHarbor(ctx context.Context) (err error) {
 
 			// 推送harbor仓库
 			opts := GenerateHarborAuthConfig(ctx)
-			_, err = DockerClient.ImagePush(ctx, newImage, opts)
+			_, _ = DockerClient.ImagePush(ctx, newImage, opts)
 			g.Log().Infof(ctx, "%s , image push success", newImage)
-			if err != nil {
-				return err
-			}
 
 			// 操作数据库
 			err = g.DB().Transaction(ctx, func(ctx context.Context, tx *gdb.TX) error {
