@@ -67,14 +67,9 @@ func GenerateHarborAuthConfig(ctx context.Context) types.ImagePushOptions {
 }
 
 // LoadImageAndPushToHarbor 导入docker镜像并推送到harbor仓库
-func (s *sDocker) LoadImageAndPushToHarbor(ctx context.Context) (err error) {
-	// @todo: 这里要更改逻辑，需要导镜像的目录不能写死，需为升级包里面镜像存储目录
-	path, err := g.Config().Get(ctx, "file.filePath")
-	if err != nil {
-		return err
-	}
+func (s *sDocker) LoadImageAndPushToHarbor(ctx context.Context, imageStoragePath string) (err error) {
 	// 获取当前目录下的文件
-	files := utils.GetDirectoryDockerFileList(fmt.Sprintf("%s/%s", path, "docker"))
+	files := utils.GetDirectoryDockerFileList(fmt.Sprintf("%s/%s", imageStoragePath, "images"))
 
 	for _, file := range files {
 		_, filename := filepath.Split(file)
@@ -87,7 +82,7 @@ func (s *sDocker) LoadImageAndPushToHarbor(ctx context.Context) (err error) {
 
 		//	如果状态为0则表示则表示未处理过，需要写后续逻辑
 		if value.Int() == 0 {
-			f, err := os.Open(fmt.Sprintf("%s/%s/%s", path, "docker", filename))
+			f, err := os.Open(fmt.Sprintf("%s/%s/%s", imageStoragePath, "images", filename))
 			if err != nil {
 				return err
 			}

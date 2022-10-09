@@ -22,7 +22,7 @@ func File() *sFile {
 }
 
 func (s *sFile) UploadFile(ctx context.Context, inFile *ghttp.UploadFile) (err error) {
-	//@todo: 这里要补充，如果出现每次上传文件名都一致的情况，初步解决方案为先查库（in）如果一致则不上传，不一致则上传
+	// @todo: 这里要补充，如果出现每次上传文件名都一致的情况，初步解决方案为先查库（in）如果一致则不上传，不一致则上传
 	var file = &entity.File{}
 	file.Size = inFile.Size
 	filePath := ""
