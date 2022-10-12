@@ -3,12 +3,15 @@ package utils
 import (
 	"archive/tar"
 	"compress/gzip"
+	"context"
 	"fmt"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 	"io"
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 )
 
 // GetDirectoryDockerFileList 查看docker目录下的文件，返回绝对路径列表
@@ -26,7 +29,7 @@ func FindIpAddress(input string) string {
 }
 
 // ExtraTarGzip 解压.tar.gz 文件
-func ExtraTarGzip(tarFile, destPath string) (err error, outPath string) {
+func ExtraTarGzip(tarFile, destPath string) (err error, uncompressedFullPath string) {
 	// 打开压缩文件流
 	srcFile, err := os.Open(tarFile)
 	if err != nil {
@@ -54,6 +57,9 @@ func ExtraTarGzip(tarFile, destPath string) (err error, outPath string) {
 		}
 
 		outFullPath = fmt.Sprintf("%s/%s", destPath, header.Name)
+
+		g.Log().Debugf(context.Background(), "%s文件被解压", outFullPath)
+
 		switch header.Typeflag {
 		case tar.TypeDir:
 			if err := os.Mkdir(outFullPath, 0755); err != nil {
@@ -73,5 +79,8 @@ func ExtraTarGzip(tarFile, destPath string) (err error, outPath string) {
 			return err, ""
 		}
 	}
-	return nil, outFullPath
+	suffixPath := strings.TrimPrefix(outFullPath, destPath)
+	uncompressedPath := strings.Split(suffixPath, "/")[1]
+	uncompressedFullPath = fmt.Sprintf("%s/%s", destPath, uncompressedPath)
+	return nil, uncompressedFullPath
 }

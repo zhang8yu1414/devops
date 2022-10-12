@@ -1,5 +1,5 @@
 CREATE TABLE `user` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'User ID',
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'User ID',
   `passport` varchar(45) NOT NULL COMMENT 'User Passport',
   `password` varchar(45) NOT NULL COMMENT 'User Password',
   `nickname` varchar(45) NOT NULL COMMENT 'User Nickname',
@@ -14,8 +14,9 @@ CREATE TABLE `file` (
   `name` varchar(50) NOT NULL COMMENT '文件名',
   `md5` varchar(50) NOT NULL COMMENT '文件MD5值',
   `size` bigint NOT NULL COMMENT '文件大小',
-  `path` varchar(50) NOT NULL COMMENT '文件存储目录',
-  `import` tinyint NOT NULL DEFAULT 0 COMMENT '文件是否被处理,默认未处理',
+  `storage_path` varchar(50) NOT NULL COMMENT '文件存储目录',
+  `uncompressed_path` varchar(50) NOT NULL COMMENT '文件解压之后目录',
+  `import` tinyint NOT NULL DEFAULT 0 COMMENT '文件是否被解压,默认未处理',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

@@ -2,8 +2,9 @@ package v1
 
 import "github.com/gogf/gf/v2/frame/g"
 
-type DockerPushImagesReq struct {
-	g.Meta `path:"/docker/push" method:"get" tags:"DockerService" summary:"push the docker images to harbor"`
+type UpdateAppReq struct {
+	g.Meta   `path:"/app/update" method:"post" tags:"UpdateApp" summary:"Update Application"`
+	FileName string `json:"fileName"`
 }
 
-type DockerPushImagesRes struct{}
+type UpdateAppRes struct{}

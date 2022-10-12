@@ -29,7 +29,7 @@ var (
 				// Register route handlers.
 				group.Bind(
 					controller.User,
-					controller.Docker,
+					controller.Update,
 					controller.File,
 					controller.Kube,
 					controller.Ws,

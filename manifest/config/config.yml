@@ -35,14 +35,14 @@ database:
     rotateCheckInterval: "24h"
 
   default:
-    link: "mysql:root:nBqYwcAq^MJCx^KJ@tcp(127.0.0.1:3306)/sakura"
+    link: "mysql:root:nBqYwcAq^MJCx^KJ@tcp(127.0.0.1:3306)/sakura?loc=Local"
     debug: true
 
 # gfcli tools
 gfcli:
   gen:
     dao:
-    - link: "mysql:root:nBqYwcAq^MJCx^KJ@tcp(127.0.0.1:3306)/sakura"
+    - link: "mysql:root:nBqYwcAq^MJCx^KJ@tcp(127.0.0.1:3306)/sakura?loc=Local"
 
 file:
   filePath: "D:\\run\\files"

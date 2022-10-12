@@ -67,82 +67,74 @@ func GenerateHarborAuthConfig(ctx context.Context) types.ImagePushOptions {
 }
 
 // LoadImageAndPushToHarbor 导入docker镜像并推送到harbor仓库
-func (s *sDocker) LoadImageAndPushToHarbor(ctx context.Context, imageStoragePath string) (err error) {
+func (s *sDocker) LoadImageAndPushToHarbor(ctx context.Context, tarFileName string, uncompressedPath string) (err error) {
 	// 获取当前目录下的文件
-	files := utils.GetDirectoryDockerFileList(fmt.Sprintf("%s/%s", imageStoragePath, "images"))
+	files := utils.GetDirectoryDockerFileList(fmt.Sprintf("%s/%s", uncompressedPath, "images"))
 
 	for _, file := range files {
 		_, filename := filepath.Split(file)
 
-		// 查询tar包的状态是否为已经推送过仓库
-		value, err := g.Model("file").Fields("import").Where("name=", filename).Value()
+		f, err := os.Open(fmt.Sprintf("%s/%s/%s", uncompressedPath, "images", filename))
 		if err != nil {
 			return err
 		}
 
-		//	如果状态为0则表示则表示未处理过，需要写后续逻辑
-		if value.Int() == 0 {
-			f, err := os.Open(fmt.Sprintf("%s/%s/%s", imageStoragePath, "images", filename))
+		res, err := DockerClient.ImageLoad(ctx, f, true)
+		if err != nil {
+			return err
+		}
+		body, err := io.ReadAll(res.Body)
+		strBody := gconv.String(body)
+		image := strings.Split(strBody, " ")[2]
+		oldImage := strings.Split(image, "\\")[0]
+
+		// 开始处理tag逻辑
+		// 拼凑harbor image tag
+		harborVar, _ := g.Cfg().Get(ctx, "harbor.ip")
+		harborIpAddress := harborVar.String()
+		newImage := ""
+		if ip := utils.FindIpAddress(image); ip != "" {
+			//g.Dump("ip", ip)
+			newImage = strings.Replace(oldImage, ip, harborIpAddress, 1)
+		} else {
+			newImage = fmt.Sprintf("%s/%s", harborIpAddress, oldImage)
+		}
+
+		// 生成新的tag image
+		err = DockerClient.ImageTag(ctx, oldImage, newImage)
+		if err != nil {
+			return err
+		}
+
+		// 推送harbor仓库
+		opts := GenerateHarborAuthConfig(ctx)
+		_, _ = DockerClient.ImagePush(ctx, newImage, opts)
+		g.Log().Infof(ctx, "%s , image push success", newImage)
+
+		// 操作数据库
+		err = g.DB().Transaction(ctx, func(ctx context.Context, tx *gdb.TX) error {
+			//	插入image数据
+			queryId, err := tx.Ctx(ctx).Model("file").
+				Fields("id").
+				Where("name", tarFileName).Value()
+			id := queryId.Int64()
+			// 考虑到重复推送镜像，删除同文件ID下的导入记录
+			_, _ = tx.Ctx(ctx).Model("image").Where(g.Map{
+				"file_id": id,
+				"new":     newImage,
+				"old":     oldImage,
+			}).Delete()
+
+			_, err = tx.Ctx(ctx).Model("image").
+				Data(g.Map{"New": newImage, "Old": oldImage, "FileId": id}).Insert()
 			if err != nil {
 				return err
 			}
 
-			res, err := DockerClient.ImageLoad(ctx, f, true)
-			if err != nil {
-				return err
-			}
-			body, err := io.ReadAll(res.Body)
-			strBody := gconv.String(body)
-			image := strings.Split(strBody, " ")[2]
-			oldImage := strings.Split(image, "\\")[0]
-
-			// 开始处理tag逻辑
-			// 拼凑harbor image tag
-			harborVar, _ := g.Cfg().Get(ctx, "harbor.ip")
-			harborIpAddress := harborVar.String()
-			newImage := ""
-			if ip := utils.FindIpAddress(image); ip != "" {
-				//g.Dump("ip", ip)
-				newImage = strings.Replace(oldImage, ip, harborIpAddress, 1)
-			} else {
-				newImage = fmt.Sprintf("%s/%s", harborIpAddress, oldImage)
-			}
-
-			// 生成新的tag image
-			err = DockerClient.ImageTag(ctx, oldImage, newImage)
-			if err != nil {
-				return err
-			}
-
-			// 推送harbor仓库
-			opts := GenerateHarborAuthConfig(ctx)
-			_, _ = DockerClient.ImagePush(ctx, newImage, opts)
-			g.Log().Infof(ctx, "%s , image push success", newImage)
-
-			// 操作数据库
-			err = g.DB().Transaction(ctx, func(ctx context.Context, tx *gdb.TX) error {
-				//	插入image数据
-				queryId, err := tx.Ctx(ctx).Model("file").
-					Fields("id").
-					Where("name", filename).Value()
-				id := queryId.Int64()
-				_, err = tx.Ctx(ctx).Model("image").
-					Data(g.Map{"New": newImage, "Old": oldImage, "FileId": id}).Insert()
-				if err != nil {
-					return err
-				}
-				_, err = tx.Ctx(ctx).Model("file").
-					Data(g.Map{"Import": 1}).
-					Where("name", filename).Update()
-				if err != nil {
-					return err
-				}
-
-				return nil
-			})
-			if err != nil {
-				return err
-			}
+			return nil
+		})
+		if err != nil {
+			return err
 		}
 	}
 

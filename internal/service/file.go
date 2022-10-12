@@ -9,7 +9,8 @@ import (
 	"os"
 	"path"
 	"strings"
-	"zhangyudevops.com/internal/model/model/entity"
+	"time"
+	"zhangyudevops.com/internal/model"
 	"zhangyudevops.com/internal/utils"
 )
 
@@ -22,8 +23,7 @@ func File() *sFile {
 }
 
 func (s *sFile) UploadFile(ctx context.Context, inFile *ghttp.UploadFile) (err error) {
-	// @todo: 这里要补充，如果出现每次上传文件名都一致的情况，初步解决方案为先查库（in）如果一致则不上传，不一致则上传
-	var file = &entity.File{}
+	var file = &model.File{}
 	file.Size = inFile.Size
 	filePath := ""
 
@@ -73,7 +73,7 @@ func (s *sFile) UploadFile(ctx context.Context, inFile *ghttp.UploadFile) (err e
 		}
 	}
 
-	file.Path = filePath
+	file.StoragePath = filePath
 	filename, err := inFile.Save(filePath, false)
 	if err != nil {
 		return err
@@ -86,42 +86,46 @@ func (s *sFile) UploadFile(ctx context.Context, inFile *ghttp.UploadFile) (err e
 	}
 	file.Md5 = md5
 	err = g.DB().Transaction(ctx, func(ctx context.Context, tx *gdb.TX) error {
-		id, _ := tx.Ctx(ctx).Model("file").Fields("id").Where("name=", filename).Value()
-		_, err = tx.Ctx(ctx).Model("image").Where("file_id", id).Delete()
-		if err != nil {
-			return err
-		}
+		result, _ := tx.Ctx(ctx).Model("file").Fields("id,md5").Where("name=", filename).One()
+		r := result.GMap()
+		if md5Record, _ := tx.Ctx(ctx).Model("file").Where("md5=", r.Get("md5")).One(); md5Record.IsEmpty() != true {
+			l, _ := time.LoadLocation("Asia/Shanghai")
+			now := time.Now().In(l).Format("2006-01-02 15:04:05")
+			_, _ = tx.Ctx(ctx).Model("file").Data("created_at", now).Where("md5=", r.Get("md5")).Update()
+		} else {
+			_, err = tx.Ctx(ctx).Model("image").Where("file_id", r.Get("id")).Delete()
+			if err != nil {
+				return err
+			}
 
-		_, err = tx.Ctx(ctx).Model("file").Where("name=", filename).Delete()
-		if err != nil {
-			return err
+			_, err = tx.Ctx(ctx).Model("file").Where("name=", filename).Delete()
+			if err != nil {
+				return err
+			}
+
+			err = g.DB().Transaction(ctx, func(ctx context.Context, tx *gdb.TX) error {
+				_, err = tx.Ctx(ctx).Model("file").Data(file).Insert()
+				if err != nil {
+					return err
+				}
+				return nil
+			})
+			if err != nil {
+				return err
+			}
 		}
 
 		return nil
 	})
-	if err != nil {
-		return err
-	}
-
-	err = g.DB().Transaction(ctx, func(ctx context.Context, tx *gdb.TX) error {
-		_, err = tx.Ctx(ctx).Model("file").Data(file).Insert()
-		if err != nil {
-			return err
-		}
-		return nil
-	})
-	if err != nil {
-		return err
-	}
 
 	return nil
 }
 
 // UncompressedFile 解压.tar.gz包
-// return: 解压后的路径
-func (s *sFile) UncompressedFile(ctx context.Context, tarFile string) (outPath string) {
-	destPathVar, _ := g.Config().Get(ctx, "update.uncompressedPath")
-	destPath := destPathVar.String()
+// @args: tarFile 压缩包绝对路径
+// @args: destPath 解压后的路径
+// @return: 解压后的路径
+func (s *sFile) UncompressedFile(tarFile string, destPath string) (outPath string) {
 
 	_, outPath = utils.ExtraTarGzip(tarFile, destPath)
 	return outPath
