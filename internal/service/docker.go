@@ -1,6 +1,7 @@
 package service
 
 import (
+	"bufio"
 	"context"
 	"encoding/base64"
 	"encoding/json"
@@ -85,6 +86,7 @@ func (s *sDocker) LoadImageAndPushToHarbor(ctx context.Context, tarFileName stri
 		}
 		body, err := io.ReadAll(res.Body)
 		strBody := gconv.String(body)
+		//g.Log().Print(ctx, strBody)
 		image := strings.Split(strBody, " ")[2]
 		oldImage := strings.Split(image, "\\")[0]
 
@@ -108,7 +110,20 @@ func (s *sDocker) LoadImageAndPushToHarbor(ctx context.Context, tarFileName stri
 
 		// 推送harbor仓库
 		opts := GenerateHarborAuthConfig(ctx)
-		_, _ = DockerClient.ImagePush(ctx, newImage, opts)
+		ioPush, _ := DockerClient.ImagePush(ctx, newImage, opts)
+
+		// 回调docker push 结果
+		//var message interface{}
+		buffIOReader := bufio.NewReader(ioPush)
+		for {
+			//streamBytes, err := buffIOReader.ReadBytes('\n')
+			_, err := buffIOReader.ReadBytes('\n')
+			if err == io.EOF {
+				break
+			}
+			//_ = json.Unmarshal(streamBytes, &message)
+			//g.Log().Print(ctx, message)
+		}
 		g.Log().Infof(ctx, "%s , image push success", newImage)
 
 		// 操作数据库

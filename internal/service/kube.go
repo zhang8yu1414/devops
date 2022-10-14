@@ -217,3 +217,7 @@ func (s *sKube) GetNamespaceDeploys(ctx context.Context, namespace string) (depl
 func (s *sKube) EditDeploy(ctx context.Context, namespace string) {
 	//kubeClient.AppsV1().Deployments(namespace).Apply(ctx, )
 }
+
+func (s *sKube) ApplyK8sYaml() {
+
+}

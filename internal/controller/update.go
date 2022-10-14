@@ -10,8 +10,9 @@ var Update = cUpdate{}
 
 type cUpdate struct{}
 
-func (c *cUpdate) UpdateApp(ctx context.Context, req *v1.UpdateAppReq) (res *v1.UpdateAppRes, err error) {
-	err = service.Update().UpdateApp(ctx, req.FileName)
+// UncompressedAndPush 解压升级文件，随后推送镜像到harbor
+func (c *cUpdate) UncompressedAndPush(ctx context.Context, req *v1.CompressedAndPushReq) (res *v1.CompressedAndPushRes, err error) {
+	err = service.Update().UncompressedTarFileAndPushHarbor(ctx, req.FileName)
 	if err != nil {
 		return nil, err
 	}
