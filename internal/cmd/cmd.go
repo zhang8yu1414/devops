@@ -16,7 +16,7 @@ var (
 	Main = gcmd.Command{
 		Name:  "main",
 		Usage: "main",
-		Brief: "start http server of simple goframe demos",
+		Brief: "start http server",
 		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
 			s := g.Server()
 			s.Use(ghttp.MiddlewareHandlerResponse)
