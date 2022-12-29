@@ -33,6 +33,7 @@ var (
 					controller.File,
 					controller.Kube,
 					controller.Ws,
+					controller.Harbor,
 				)
 				// Special handler that needs authentication.
 				group.Group("/", func(group *ghttp.RouterGroup) {

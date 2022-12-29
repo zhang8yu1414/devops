@@ -49,6 +49,7 @@ file:
 
 harbor:
   ip: "172.27.15.122"
+  version: "v2.0"
   username: "admin"
   password: "Harbor12345"
 

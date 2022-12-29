@@ -43,6 +43,7 @@ func (s *sUpdate) UncompressedTarFileAndPushHarbor(ctx context.Context, fileName
 	uncompressedOutPath := File().UncompressedFile(fmt.Sprintf("%s/%s", record.Get("storage_path"), fileName), updateFileUncompressedDestPath)
 	g.Log().Infof(ctx, "%s文件解压到%s", fileName, uncompressedOutPath)
 
+	// images.tar.gz 解压目录里面必须要有这个文件专门存放镜像
 	imageCompressFile := fmt.Sprintf("%s/%s", uncompressedOutPath, "images.tar.gz")
 	outImagesPath = File().UncompressedFile(imageCompressFile, uncompressedOutPath)
 	g.Log().Infof(ctx, "%s文件解压到%s", imageCompressFile, outImagesPath)

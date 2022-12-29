@@ -22,6 +22,9 @@ func File() *sFile {
 	return &inFile
 }
 
+// UploadFile 文件上传
+// 总行升级包以center_为前缀开始
+// 分行升级包以division_前缀开始
 func (s *sFile) UploadFile(ctx context.Context, inFile *ghttp.UploadFile) (err error) {
 	var file = &model.File{}
 	file.Size = inFile.Size

@@ -108,6 +108,8 @@ func (s *sDocker) LoadImageAndPushToHarbor(ctx context.Context, tarFileName stri
 			return err
 		}
 
+		// @todo: 这里需要新增harbor接口，需要检测project，没有的话需要新建，处理公有镜像加前缀推送不成功的情况，随后也要考虑中间件的升级问题
+
 		// 推送harbor仓库
 		opts := GenerateHarborAuthConfig(ctx)
 		ioPush, _ := DockerClient.ImagePush(ctx, newImage, opts)
