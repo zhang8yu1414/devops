@@ -9,4 +9,5 @@ type HarborProjectCreateReq struct {
 	ProjectName string `json:"projectName"`
 }
 
-type HarborProjectCreateRes struct{}
+type HarborProjectCreateRes struct {
+}
